@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest something new or a change to how something works.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the problem or goal first. The solution can come after.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+      description: Your idea, if you have one. Sketches and examples welcome.
+  - type: textarea
+    id: today
+    attributes:
+      label: How do you handle it today?
+      description: A workaround you use now, if any.

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: No GitHub account? Email me
+    url: https://dbaney.com/#contact
+    about: Send a bug report or idea by email and I'll file it for you.
+  - name: Security problem
+    url: https://dbaney.com/#contact
+    about: Please report vulnerabilities privately by email, not in a public issue.

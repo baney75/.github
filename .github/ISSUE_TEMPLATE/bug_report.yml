@@ -1,0 +1,41 @@
+name: Bug report
+description: Something is broken, crashes, or doesn't work the way the docs say.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time. A short, specific report gets fixed fastest.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead.
+      placeholder: "I clicked Export, expected a PNG in Downloads, and got an error saying..."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The app, extension or package version, or the commit you built from.
+  - type: input
+    id: system
+    attributes:
+      label: System
+      placeholder: "e.g. macOS 15.3 on an M2, Windows 11, Ubuntu 24.04, Chrome 141"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages or logs (optional)
+      description: Paste any error text. Remove personal information first.
+      render: text
