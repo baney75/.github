@@ -1,0 +1,46 @@
+# Reusable: credits baney75's public sponsors in the calling repository's README and releases.
+# Call it from a repository with:
+#   jobs:
+#     sponsors:
+#       uses: baney75/.github/.github/workflows/sponsors.yml@main
+#       permissions:
+#         contents: write
+name: Sponsors
+on:
+  workflow_call:
+permissions: {}
+jobs:
+  credit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    concurrency:
+      group: sponsors-${{ github.repository }}-${{ github.event.release.id || 'readme' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Fetch the shared script
+        uses: actions/checkout@v4
+        with:
+          repository: baney75/.github
+          ref: main
+          path: .sponsors-shared
+          sparse-checkout: scripts/sponsors.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Credit sponsors
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          RELEASE_ID: ${{ github.event.release.id }}
+        run: python3 .sponsors-shared/scripts/sponsors.py
+      - name: Commit the README
+        if: github.event_name != 'release'
+        run: |
+          git diff --quiet -- README.md && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Update sponsors' -- README.md
+          git push
