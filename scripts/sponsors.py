@@ -45,7 +45,7 @@ def readme(names):
     match = BLOCK.search(text)
     if not match:
         return print('README.md has no sponsors block; nothing to update.')
-    if not names and '](https://github.com/' in match.group(1):
+    if not names and '[@' in match.group(1):
         # An empty list while sponsors are already credited more likely means the token could not
         # see them than that every sponsor left. Fail loudly instead of erasing the credits.
         sys.exit('GitHub returned no sponsors but README.md credits some; leaving it unchanged.')
