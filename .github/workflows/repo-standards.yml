@@ -1,0 +1,66 @@
+# Reusable: secret scanning and the repo standard for every one of Donovan's repositories. Replaces GitGuardian.
+# Published to baney75/.github as .github/workflows/repo-standards.yml, with the tools under standards/.
+# Source of truth: the fleet repo's templates/repo-standards/ and tools/; edit there, not here.
+# A repository calls it with one job (templates/repo-standards/caller.yml):
+#   jobs:
+#     standards:
+#       uses: baney75/.github/.github/workflows/repo-standards.yml@main
+#
+# What runs, in one job so a private repo pays one hosted minute:
+# - gitleaks (pinned by sha256) with the fleet rules over the whole history, every push and pull request.
+#   Nothing is uploaded. Exceptions live in .github/secret-allow.toml, each with a reason.
+# - On the weekly schedule or a manual run: trufflehog in verified mode, which asks each key's issuer
+#   whether it is live. A live key fails the run and is never allowed.
+# - tools/repo_standards.py: README, LICENSE, AGENTS.md and CLAUDE.md, skills, DESIGN.md, dashes in agent
+#   prose, structured logging, CI time. Problems in .github/repo-standards-baseline.json are reported;
+#   a new one fails the run. With no baseline it only reports.
+name: Repo standards
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: Runner labels as JSON, e.g. '["self-hosted", "linux", "fleet-ci"]' for a fleet-ci pool repo
+        type: string
+        default: '"ubuntu-latest"'
+      mode:
+        description: ratchet (new problems fail) or report (never fails on standards; secrets still fail)
+        type: string
+        default: ratchet
+permissions: {}
+jobs:
+  standards:
+    name: Secrets and repo standards
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Check out (whole history, for the secret scan)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch the shared tools
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: baney75/.github
+          ref: main
+          path: .standards
+          sparse-checkout: standards
+          persist-credentials: false
+      - name: Secret scan (gitleaks, whole history)
+        env:
+          FLEET_SECRETS_CACHE: ${{ runner.temp }}/fleet-secrets
+        run: python3 .standards/standards/repo_secrets.py scan --repo .
+      - name: Live keys (verified with each issuer)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        env:
+          FLEET_SECRETS_CACHE: ${{ runner.temp }}/fleet-secrets
+        run: python3 .standards/standards/repo_secrets.py verify --repo .
+      - name: Repo standards
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MODE: ${{ inputs.mode }}
+        # --github: a schedule event's payload has no repository, so visibility comes from the API.
+        run: python3 .standards/standards/repo_standards.py --repo . --github "$GITHUB_REPOSITORY" --mode "$MODE" --markdown "$GITHUB_STEP_SUMMARY"
