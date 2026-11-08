@@ -61,4 +61,6 @@ jobs:
       - name: Repo standards
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 .standards/standards/repo_standards.py --repo . --mode "${{ inputs.mode }}" --markdown "$GITHUB_STEP_SUMMARY"
+          MODE: ${{ inputs.mode }}
+        # --github: a schedule event's payload has no repository, so visibility comes from the API.
+        run: python3 .standards/standards/repo_standards.py --repo . --github "$GITHUB_REPOSITORY" --mode "$MODE" --markdown "$GITHUB_STEP_SUMMARY"

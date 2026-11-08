@@ -89,7 +89,7 @@ def repo_meta(repo: Path, github: str | None) -> dict:
     if event and Path(event).is_file():
         try:
             data = json.loads(Path(event).read_text()).get("repository") or {}
-            if data:
+            if "private" in data and data.get("full_name"):  # a schedule event carries no repository
                 return data
         except (OSError, ValueError):
             pass
