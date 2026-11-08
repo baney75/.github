@@ -6,3 +6,4 @@ Shared GitHub settings for [baney75](https://github.com/baney75)'s repositories.
 - `.github/workflows/sponsors.yml` is a reusable workflow. Each project calls it daily and on every release, so public sponsors are credited in its README and release notes without anyone editing them by hand.
 - Issue forms for bug reports and feature requests apply to every repository that doesn't have its own. People without a GitHub account are pointed to email.
 - `SECURITY.md` asks for vulnerabilities to be reported privately.
+- `.github/workflows/repo-standards.yml` is a reusable workflow that scans each repository for secrets with pinned gitleaks and checks it against the shared repo standard (`standards/`). A repository calls it with one job. Its existing problems are recorded once, and only new ones fail.
